@@ -19,8 +19,8 @@ const char *__FLAGGED_FW_NAME = "\xbf\x84\xe4\x13\x54" FW_NAME "\x93\x44\x6b\xa7
 const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x48\xd4\x1a";
 /* End of magic sequence for Autodetectable Binary Upload */
 
-HomieSetting<bool> dhtSetting("dht", "Enable Temp and Humidity");
-HomieSetting<unsigned long> dhtIntervalSetting("dht_interval", "DHT reporting interval");
+// HomieSetting<bool> dhtSetting("dht", "Enable Temp and Humidity");
+// HomieSetting<unsigned long> dhtIntervalSetting("dht_interval", "DHT reporting interval");
 
 // Basic Configuration.
 const int PIN_RELAY = 12;
@@ -153,7 +153,7 @@ void humidityDidChange(float humidity) {
 
 void setupHandler() {
   // set the enabled value after loading
-  isDHTEnabled = dhtSetting.get();
+  // isDHTEnabled = dhtSetting.get();
 }
 
 #include "PietteTech_DHT.h"
@@ -200,7 +200,7 @@ void dhtLoop() {
     }
   }
 
-  if ((millis() - startMills) > dhtIntervalSetting.get()) {
+  // if ((millis() - startMills) > dhtIntervalSetting.get()) {
     if ( acquireresult == 0 ) {
       // if (h != h0) {
       if (h == 0) {
@@ -239,7 +239,7 @@ void dhtLoop() {
       DHT.acquire();
       isDHTStarted = true;
     }
-  }
+  // }
 }
 
 void loopHandler() {
@@ -271,12 +271,13 @@ void setup() {
   Homie_setBrand(BRAND_NAME);
   Homie.setLedPin(PIN_LED, LOW).disableResetTrigger();
   Homie.onEvent(onHomieEvent);
-  Homie.setSetupFunction(setupHandler).setLoopFunction(loopHandler).setResetTrigger(PIN_BUTTON, LOW, 2000);
+  Homie.setSetupFunction(setupHandler).setResetTrigger(PIN_BUTTON, LOW, 2000);
+  // Homie.setSetupFunction(setupHandler).setLoopFunction(loopHandler).setResetTrigger(PIN_BUTTON, LOW, 2000);
 
   switchNode.advertise("on").settable(switchOnHandler);
 
-  dhtSetting.setDefaultValue(false);
-  dhtIntervalSetting.setDefaultValue(REPORT_INTERVAL_DEFAULT);
+  // dhtSetting.setDefaultValue(false);
+  // dhtIntervalSetting.setDefaultValue(REPORT_INTERVAL_DEFAULT);
 
   // button.onClick(1, didPressButton);
   // button.onClick(5, didToggleManualOverride);
@@ -286,8 +287,8 @@ void setup() {
 
   Homie.setup();
   Serial.println("Setup complete");
-  Serial.println(dhtSetting.get());
-  Serial.println(dhtIntervalSetting.get());
+  // Serial.println(dhtSetting.get());
+  // Serial.println(dhtIntervalSetting.get());
 }
 
 unsigned long lastHeapPrint;
