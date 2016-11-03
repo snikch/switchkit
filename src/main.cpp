@@ -203,17 +203,23 @@ void dhtLoop() {
   if ((millis() - startMills) > dhtIntervalSetting.get()) {
     if ( acquireresult == 0 ) {
       // if (h != h0) {
+      if (h == 0) {
+        Serial.println("Got a phony 0 reading for humidity");
+      } else {
         Serial.print("Humidity (%): ");
         Serial.println(h);
         humidityDidChange(h);
         h0 = h;
-      // }
+      }
       // if (t != t0) {
+      if (h == 0) {
+        Serial.println("Got a phony 0 reading for temperature");
+      } else {
         Serial.print("Temperature (oC): ");
         Serial.println(t);
         tempDidChange(t);
         t0 = t;
-      // }
+      }
 
     } else {
       Serial.println("Is dht11 connected?");
