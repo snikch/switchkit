@@ -2,6 +2,5 @@
 .clang_complete
 .gcc-flags.json
 .piolibdeps
-
 # Ignore Configuration Files
 configs/

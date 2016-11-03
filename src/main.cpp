@@ -1,6 +1,8 @@
 #define DHT_DEBUG true
+// #include "EspSaveCrash.h"
+// #include <../gdbstub/gdbstub.h>
 #include <Homie.h>
-#include "pressing.h"
+// #include "pressing.h"
 extern "C" {
   #include "user_interface.h"
 }
@@ -30,7 +32,7 @@ const bool ENABLE_HUMIDITY = true;
 
 
 HomieNode switchNode("switch", "switch");
-Pressing button(PIN_BUTTON, HIGH, 400);
+// Pressing button(PIN_BUTTON, HIGH, 400);
 
 // State booleans.
 bool isOnline = false;
@@ -270,29 +272,21 @@ void setup() {
   dhtSetting.setDefaultValue(false);
   dhtIntervalSetting.setDefaultValue(REPORT_INTERVAL_DEFAULT);
 
-  button.onClick(1, didPressButton);
-  button.onClick(5, didToggleManualOverride);
-  // button.onHold(1, handleClickAndHold);
-  button.setToggleMode(true);
-  button.onToggle(didPressButton);
+  // button.onClick(1, didPressButton);
+  // button.onClick(5, didToggleManualOverride);
+  // // button.onHold(1, handleClickAndHold);
+  // button.setToggleMode(true);
+  // button.onToggle(didPressButton);
 
   Homie.setup();
   Serial.println("Setup complete");
   Serial.println(dhtSetting.get());
   Serial.println(dhtIntervalSetting.get());
-  system_set_os_print(1);
 }
 
 unsigned long lastHeapPrint;
 
 void loop() {
-  button.loop();
+  // button.loop();
   Homie.loop();
-  unsigned long nw = millis();
-  if ((nw - lastHeapPrint) > dhtIntervalSetting.get()) {
-    lastHeapPrint = nw;
-    Serial.println("heap");
-    Serial.println(system_get_free_heap_size());
-    system_print_meminfo();
-  }
 }
