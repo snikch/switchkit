@@ -246,8 +246,8 @@ void loopHandler() {
   if (isDHTEnabled) {
     if (!isDHTInitialized) {
       Serial.println("Initializaing dht");
-      Homie.setNodeProperty(temperatureNode, "unit").send("c");
-      Homie.setNodeProperty(humidityNode, "unit").send("percent");
+      Homie.setNodeProperty(temperatureNode, "unit").send("°C");
+      Homie.setNodeProperty(humidityNode, "unit").send("%");
       temperatureNode.advertise("unit");
       temperatureNode.advertise("degrees");
       humidityNode.advertise("unit");
