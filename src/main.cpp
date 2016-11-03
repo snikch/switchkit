@@ -224,8 +224,8 @@ void dhtLoop() {
     } else {
       Serial.println("Is dht11 connected?");
       Serial.println(acquireresult);
-      Homie.setNodeProperty(temperatureNode, TEMPERATURE_UNIT).send(String(""));
-      Homie.setNodeProperty(humidityNode, HUMIDITY_UNIT).send(String(""));
+      // Homie.setNodeProperty(temperatureNode, TEMPERATURE_UNIT).send(String(""));
+      // Homie.setNodeProperty(humidityNode, HUMIDITY_UNIT).send(String(""));
     }
     startMills = millis();
 
