@@ -1,18 +1,12 @@
-#define DHT_DEBUG true
-// #include "EspSaveCrash.h"
-// #include <../gdbstub/gdbstub.h>
 #include <Homie.h>
-// #include "pressing.h"
-extern "C" {
-  #include "user_interface.h"
-}
+#include "probe.h"
+#include <OneWire.h>
 
 #define FW_NAME "sensorkit"
 #define FW_VERSION "1.0.0"
 #define BRAND_NAME "Fairholme"
 
-#define TEMPERATURE_UNIT "degrees"
-#define HUMIDITY_UNIT "percent"
+#define TEMPERATURE_UNIT "°C"
 
 /* Magic sequence for Autodetectable Binary Upload */
 const char *__FLAGGED_FW_NAME = "\xbf\x84\xe4\x13\x54" FW_NAME "\x93\x44\x6b\xa7\x75";
@@ -28,19 +22,14 @@ const int PIN_LED = 13;
 const int PIN_BUTTON = 0;
 const bool ENABLE_RELAY = true;
 const bool ENABLE_TEMP = true;
-const bool ENABLE_HUMIDITY = true;
 
 
 HomieNode switchNode("switch", "switch");
-// Pressing button(PIN_BUTTON, HIGH, 400);
 
 // State booleans.
 bool isOnline = false;
 bool isManualOverride = false;
 bool currentState = false;
-bool isDHTInitialized = false;
-bool isDHTStarted;       // flag to indicate we started acquisition
-bool isDHTEnabled = false;
 const bool toggleMode = true;
 
 
@@ -136,143 +125,43 @@ void handleClickAndHold(int duration) {
 }
 
 HomieNode temperatureNode("temperature", "temperature");
-HomieNode humidityNode("humidity", "humidity");
 
+float onedp(float n) {
+  return ((int)((n + 0.05) * 10)) / 10.0;
+}
 
 void tempDidChange(float temp) {
+  temp = onedp(temp);
   Serial.println("Temp did change");
   Serial.println(temp);
   Homie.setNodeProperty(temperatureNode, TEMPERATURE_UNIT).send(String(temp));
 }
 
-void humidityDidChange(float humidity) {
-  Serial.println("humidity did change");
-  Serial.println(humidity);
-  Homie.setNodeProperty(humidityNode, HUMIDITY_UNIT).send(String(humidity));
-}
-
-void setupHandler() {
-  // set the enabled value after loading
-  // isDHTEnabled = dhtSetting.get();
-}
-
-#include "PietteTech_DHT.h"
-
-// system defines
-#define DHTTYPE  DHT11           // Sensor type DHT11/21/22/AM2301/AM2302
-#define DHTPIN   D5              // Digital pin for communications
-
-#define REPORT_INTERVAL_DEFAULT 15000 // in msec must > 2000
-
-// to check dht
-unsigned long startMills;
-float t, h, d;
-float t0, h0, d0;
-int acquireresult;
-int acquirestatus;
-int reportInterval = REPORT_INTERVAL_DEFAULT;
-
-//declaration
-void dht_wrapper(); // must be declared before the lib initialization
-
-// Lib instantiate
-PietteTech_DHT DHT(DHTPIN, DHTTYPE, dht_wrapper);
-
-// globals
-
-// This wrapper is in charge of calling
-// must be defined like this for the lib work
-void dht_wrapper() {
-  DHT.isrCallback();
-}
-
-void dhtLoop() {
-  if (isDHTStarted) {
-    acquirestatus = DHT.acquiring();
-    if (!acquirestatus) {
-      acquireresult = DHT.getStatus();
-      if ( acquireresult == 0 ) {
-        t = DHT.getCelsius();
-        h = DHT.getHumidity();
-        d = DHT.getDewPoint();
-      }
-      isDHTStarted = false;
-    }
-  }
-
-  // if ((millis() - startMills) > dhtIntervalSetting.get()) {
-    if ( acquireresult == 0 ) {
-      // if (h != h0) {
-      if (h == 0) {
-        Serial.println("Got a phony 0 reading for humidity");
-      } else {
-        Serial.print("Humidity (%): ");
-        Serial.println(h);
-        humidityDidChange(h);
-        h0 = h;
-      }
-      // if (t != t0) {
-      if (h == 0) {
-        Serial.println("Got a phony 0 reading for temperature");
-      } else {
-        Serial.print("Temperature (oC): ");
-        Serial.println(t);
-        tempDidChange(t);
-        t0 = t;
-      }
-
-    } else {
-      Serial.println("Is dht11 connected?");
-      Serial.println(acquireresult);
-      // Homie.setNodeProperty(temperatureNode, TEMPERATURE_UNIT).send(String(""));
-      // Homie.setNodeProperty(humidityNode, HUMIDITY_UNIT).send(String(""));
-    }
-    startMills = millis();
-
-    // to remove lock
-    if (acquirestatus == 1) {
-      DHT.reset();
-    }
-
-    if (!isDHTStarted) {
-      // non blocking method
-      DHT.acquire();
-      isDHTStarted = true;
-    }
-  // }
-}
+const byte onewireData = D5; // one-wire data
+OneWire onewire(onewireData);  // declare instance of the OneWire class to communicate with onewire sensors
+probe temp(&onewire);
 
 void loopHandler() {
-  if (isDHTEnabled) {
-    if (!isDHTInitialized) {
-      Serial.println("Initializaing dht");
-      Homie.setNodeProperty(temperatureNode, "unit").send("°C");
-      Homie.setNodeProperty(humidityNode, "unit").send("%");
-      temperatureNode.advertise("unit");
-      temperatureNode.advertise("degrees");
-      humidityNode.advertise("unit");
-      humidityNode.advertise("percent");
-      Serial.println("Complete");
-      isDHTInitialized = true;
-    }
-    // Only ready from the dht sensor when connected, and active.
-    dhtLoop();
+  probe::startConv();                            // start conversion for all sensors
+  if (probe::isReady()) {                        // update sensors when conversion complete
+    temp.update();
+    tempDidChange(temp.getTemp());
   }
 }
-
 void setup() {
   Serial.begin(115200);
   if (ENABLE_RELAY) {
     pinMode(PIN_RELAY, OUTPUT);
     digitalWrite(PIN_RELAY, HIGH);
   }
-
+  ESP.wdtDisable();
+  ESP.wdtEnable(WDTO_8S);
   Homie_setFirmware(FW_NAME, FW_VERSION);
   Homie_setBrand(BRAND_NAME);
   Homie.setLedPin(PIN_LED, LOW).disableResetTrigger();
   Homie.onEvent(onHomieEvent);
-  Homie.setSetupFunction(setupHandler).setResetTrigger(PIN_BUTTON, LOW, 2000);
-  // Homie.setSetupFunction(setupHandler).setLoopFunction(loopHandler).setResetTrigger(PIN_BUTTON, LOW, 2000);
+  Homie.setResetTrigger(PIN_BUTTON, LOW, 2000);
+  Homie.setLoopFunction(loopHandler).setResetTrigger(PIN_BUTTON, LOW, 2000);
 
   switchNode.advertise("on").settable(switchOnHandler);
 
@@ -296,4 +185,5 @@ unsigned long lastHeapPrint;
 void loop() {
   // button.loop();
   Homie.loop();
+  ESP.wdtFeed();
 }
