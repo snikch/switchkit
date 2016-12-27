@@ -34,7 +34,7 @@ It is recommended to install via [PlatformIO](platformio.org). If you can not us
 
 # Flow Chart
 
-![flow chart]()
+![flow chart](https://github.com/snikch/switchkit/blob/master/docs/flowchart.svg)
 
 ## buttonState
 
