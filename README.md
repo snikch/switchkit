@@ -1,50 +1,40 @@
-# Requirements
+# SwitchKit 🎛
 
-- Submits state change events to mqtt when connected
-- Handles lights via relay when mqtt not connected
-- Handles wifi / mqtt disconnects without affecting lights
-- Can manually turn to offline mode
+SwitchKit provides a simple firmware for ESP8266 devices to control up to four smart or dumb bulbs, via physical switches. It is designed to be placed in wall boxes and wire in to existing switches. Lights are then controlled by a combination of relays and MQTT messages. This firmware is built using the [homie-esp8266](https://github.com/marvinroger/homie-esp8266) framework.
+
+# Features
+
+- [x] Control normal bulbs via MQTT
+- [x] Control smart bulbs via physical switches
+- [x] Avoid disgraceful degradation if wifi or mqtt connectivity fails
+- [x] OTA updates (via homie-esp8266)
+- [x] Handles up to four bulbs of either type
+- [x] Remotely configurable via MQTT
+
+## Dumb Lights vs Smart Lights
+
+In dumb mode, a bulb is toggled on or off via the physical switch, or via an MQTT command (for home automation). This allows existing bulbs to be made "smart".
+
+In smart mode, the bulb itself must be a "smart bulb" which is capable of being turned off via a home automation system. SwitchKit handles turning the bulb on and off by emitting MQTT commands when online, or by falling back to "dumb mode" when there is no network or MQTT broker connection. For this mode to work, it needs to be in conjunction with home automation software such as [Home Assistant](https://home-assistant.io).
 
 
-# TODO
+# Motivation
 
-- [ ] Offline mode should not change relay until toggled, avoids "wifi disconnected, turns relay off, wifi connected, turn relay on - light goes on". Next change should attempt to set state from previous value.
+We have a house full of both Lifx and dumb bulbs. While the lifx bulbs are great to turn off with an app, it means that toggling the switch at the wall turns them off… again, and toggling them off at the wall means you can't turn them back on with the app.
 
+SwitchKit is designed to provide toggleable bulbs for the entire home, regardless of whether they are smart or not. Dumb bulbs become smart, and smart bulbs can be controlled via physical and digital means, without ending up in weird states.
 
-# Layout
+# Installation
 
-## toggleState
+It is recommended to install via [PlatformIO](platformio.org). If you can not use PlatformIO, then please see the platformio.ini file for the required dependencies.
 
-```
-on:
-  online:
-    current_state:
-      on: no-op
-      off: Submit "true"
-  offline:
-    current_state:
-      on: no-op
-      off:
-        relay_state:
-          on:
-            has_turned_off_in_current_offline_mode:
-              true: no-op
-              false: turn relay off then on, to ensure lights
-          off: relay on
+# Future Features
 
-off:
-  online:
-    current_state:
-      on: Submit "false"
-      off: no-op
-  offline:
-    current_state:
-      on:
-        - turn relay off
-        - set has_turned_off_in_current_offline_mode true
-      off:
-        - set has_turned_off_in_current_offline_mode true
-```
+- [ ] Enable dimming of smart bulbs (perhaps via a combination of toggles)
+
+# Flow Chart
+
+![flow chart]()
 
 ## buttonState
 

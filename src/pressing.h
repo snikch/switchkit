@@ -1,7 +1,8 @@
 #include "Arduino.h"
+#include <functional>
 
-typedef void (*clickCallback)(void);
-typedef void (*holdCallback)(int);
+typedef std::function<void()> clickCallback;
+typedef std::function<void(const int duration)> holdCallback;
 
 class Pressing
 {
