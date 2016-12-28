@@ -56,7 +56,7 @@ bool Switch::isOfflineMode() {
 }
 
 void Switch::emitState() {
-  Homie.setNodeProperty(*_node, "one").send(_currentState ? "true" : "false");
+  Homie.setNodeProperty(*_node, "on").send(_currentState ? "true" : "false");
 }
 
 void Switch::setOutputToState(bool state) {
