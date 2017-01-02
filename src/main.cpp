@@ -25,31 +25,6 @@ const int PIN_BUTTON = 0;
 const bool ENABLE_RELAY = true;
 const bool ENABLE_TEMP = true;
 
-// HomieNode temperatureNode("temperature", "temperature");
-//
-// float onedp(float n) {
-//   return ((int)((n + 0.05) * 10)) / 10.0;
-// }
-//
-// void tempDidChange(float temp) {
-//   temp = onedp(temp);
-//   Serial.println("Temp did change");
-//   Serial.println(temp);
-//   Homie.setNodeProperty(temperatureNode, TEMPERATURE_UNIT).send(String(temp));
-// }
-//
-// const byte onewireData = D5; // one-wire data
-// OneWire onewire(onewireData);  // declare instance of the OneWire class to communicate with onewire sensors
-// probe temp(&onewire);
-//
-// void loopHandler() {
-//   probe::startConv();                            // start conversion for all sensors
-//   if (probe::isReady()) {                        // update sensors when conversion complete
-//     temp.update();
-//     tempDidChange(temp.getTemp());
-//   }
-// }
-
 Switch* sw1;
 Switch* sw2;
 Switch* sw3;
