@@ -1,7 +1,5 @@
 #include <Homie.h>
-#include "probe.h"
 #include "switch.h"
-#include <OneWire.h>
 
 #define FW_NAME "sensorkit"
 #define FW_VERSION "1.0.0"
