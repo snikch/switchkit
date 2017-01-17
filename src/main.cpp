@@ -69,7 +69,7 @@ void setup() {
   // Homie.setLoopFunction(loopHandler)
   // Homie.setSetupFunction(setupHandler);
   Homie.setResetTrigger(PIN_BUTTON, LOW, 2000);
-  Homie.onEvent(onHomieEvent);
+  // Homie.onEvent(onHomieEvent);
   Homie.setup();
   Serial.println("Setup complete");
 }
@@ -77,34 +77,34 @@ void setup() {
 int loopCounter = 0;
 
 void loop() {
-  loopCounter++;
-  bool isPrintLoop = false;
-  if (loopCounter > 10000) {
-    isPrintLoop = true;
-    Serial.println("Loop");
-    loopCounter = 0;
-  }
-  Homie.loop();
-  if (isPrintLoop) {
-    Serial.println("1");
-  }
-  // if (sw1 != nullptr) {
-  //   sw1->loop();
+  // loopCounter++;
+  // bool isPrintLoop = false;
+  // if (loopCounter > 10000) {
+  //   isPrintLoop = true;
+  //   Serial.println("Loop");
+  //   loopCounter = 0;
   // }
-  // if (sw2 != nullptr) {
-  //   sw2->loop();
+  // Homie.loop();
+  // if (isPrintLoop) {
+  //   Serial.println("1");
   // }
-  // if (sw3 != nullptr) {
-  //   sw3->loop();
+  // // if (sw1 != nullptr) {
+  // //   sw1->loop();
+  // // }
+  // // if (sw2 != nullptr) {
+  // //   sw2->loop();
+  // // }
+  // // if (sw3 != nullptr) {
+  // //   sw3->loop();
+  // // }
+  // if (sw4 != nullptr) {
+  //   sw4->loop();
+  //   if (isPrintLoop) {
+  //     Serial.println("2");
+  //   }
   // }
-  if (sw4 != nullptr) {
-    sw4->loop();
-    if (isPrintLoop) {
-      Serial.println("2");
-    }
-  }
-  ESP.wdtFeed();
-  if (isPrintLoop) {
-    Serial.println("3");
-  }
+  // ESP.wdtFeed();
+  // if (isPrintLoop) {
+  //   Serial.println("3");
+  // }
 }
