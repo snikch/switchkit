@@ -1,4 +1,6 @@
+#ifdef ARDUINO
 #include "Arduino.h"
+#endif
 #include <functional>
 
 typedef std::function<void()> clickCallback;
