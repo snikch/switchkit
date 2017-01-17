@@ -21,29 +21,34 @@ Switch::Switch(const char* name, bool isSmart, int outputPin, int inputPin)
 
   pinMode(outputPin, OUTPUT);
 
-  HomieNode _node(name, "switch");
+  _node = new HomieNode(name, "switch");
   auto didToggleViaMQTT = std::bind(&Switch::didToggleViaMQTT, this, _1, _2);
-  _node.advertise("on").settable(didToggleViaMQTT);
-
-  auto onHomieEvent = std::bind(&Switch::onHomieEvent, this, _1);
-  Homie.onEvent(onHomieEvent);
+  _node->advertise("on").settable(didToggleViaMQTT);
 }
 
 void Switch::loop() {
   _input->loop();
 }
 
+void Switch::setDebug(bool debug) {
+  _debug = debug;
+}
+
 // Handle any connect or disconnect events and set the current status.
 void Switch::onHomieEvent(HomieEvent event) {
   switch(event.type) {
     case HomieEventType::MQTT_CONNECTED:
-      Serial.println("Received connected event");
+      if (_debug) {
+        Serial.println("Received connected event");
+      }
       this->didComeOnline();
       _isOnline = true;
       break;
     case HomieEventType::WIFI_DISCONNECTED:
     case HomieEventType::MQTT_DISCONNECTED:
-      Serial.println("Received disconnected event");
+      if (_debug) {
+        Serial.println("Received disconnected event");
+      }
       this->didGoOffline();
       _isOnline = false;
       break;
@@ -56,10 +61,20 @@ bool Switch::isOfflineMode() {
 }
 
 void Switch::emitState() {
-  (*_node).setProperty("on").send(_currentState ? "true" : "false");
+  if (_debug) {
+    Homie.getLogger() << _name;
+    Homie.getLogger() << " Emitting State: ";
+    Homie.getLogger() << (_currentState ? "true" : "false");
+  }
+  _node->setProperty("on").send(_currentState ? "true" : "false");
 }
 
 void Switch::setOutputToState(bool state) {
+  if (_debug) {
+    Homie.getLogger() << _name;
+    Homie.getLogger() << " Setting Relay Output to ";
+    Homie.getLogger() << (_currentState ? "true" : "false");
+  }
   digitalWrite(_outputPin, state ? HIGH : LOW);
 }
 
@@ -90,6 +105,10 @@ void Switch::didGoOffline() {
 }
 
 bool Switch::didToggleViaMQTT(HomieRange range, String value) {
+  if (_debug) {
+    Homie.getLogger() << _name;
+    Homie.getLogger() << " toggled via MQTT";
+  }
   bool newState = value == "true";
   if (_currentState == newState) {
     return true;
@@ -103,7 +122,10 @@ bool Switch::didToggleViaMQTT(HomieRange range, String value) {
 }
 
 void Switch::didToggleViaHW() {
-  Serial.println("Button state change initiated");
+  if (_debug) {
+    Homie.getLogger() << _name;
+    Homie.getLogger() << " toggled via Hardware";
+  }
   _currentState = !_currentState;
   if (!this->isOfflineMode()) {
     this->emitState();
@@ -135,7 +157,10 @@ void Switch::didToggleViaHW() {
 
 // TODO: Add this to flow chart
 void Switch::didToggleManualOverride() {
-  Serial.println("Manual override toggled");
+  if (_debug) {
+    Homie.getLogger() << _name;
+    Homie.getLogger() << " toggled manual override";
+  }
   _isManualOverride = !_isManualOverride;
   // Are we going offline?
   if (_isManualOverride && _isOnline) {
@@ -147,5 +172,8 @@ void Switch::didToggleManualOverride() {
 }
 
 void Switch::handleClickAndHold(int duration) {
-  Serial.printf("Click and Hold %d\n", duration);
+  if (_debug) {
+    Homie.getLogger() << _name;
+    Homie.getLogger() << " click and held";
+  }
 }

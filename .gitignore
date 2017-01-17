@@ -4,6 +4,7 @@
 .piolibdeps
 # Ignore Configuration Files
 configs/
+
 # Compiled Object files
 *.slo
 *.lo

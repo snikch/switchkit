@@ -10,6 +10,8 @@ class Switch
 {
 public:
   Switch(const char* name, bool isSmart, int outputPin, int inputPin);
+  void onHomieEvent(HomieEvent event);
+  void setDebug(bool debug);
   void loop();
 
 private:
@@ -30,9 +32,9 @@ private:
   bool _toggleMode = true;
   bool _hasChangedSinceOffline = false;
   bool _relayState = false;
+  bool _debug = false;
 
   // Private methods.
-  void onHomieEvent(HomieEvent event);
   bool isOfflineMode();
   void emitState();
   void setOutputToState(bool state);
