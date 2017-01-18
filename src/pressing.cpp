@@ -8,7 +8,7 @@
  */
 Pressing::Pressing(int pin, int activeLow, int delay)
 {
-  pinMode(pin, INPUT);
+  pinMode(pin, INPUT_PULLUP);
   _pin = pin;
   _clicks = 0;
 

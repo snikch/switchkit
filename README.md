@@ -1,6 +1,6 @@
 # SwitchKit 🎛
 
-SwitchKit provides a simple firmware for ESP8266 devices to control up to four smart or dumb bulbs, via physical switches. It is designed to be placed in wall boxes and wire in to existing switches. Lights are then controlled by a combination of relays and MQTT messages. This firmware is built using the [homie-esp8266](https://github.com/marvinroger/homie-esp8266) framework.
+SwitchKit provides a simple firmware for ESP8266 devices to control up to three smart or dumb bulbs, via physical switches. It is designed to be placed in wall boxes and wire in to existing switches. Lights are then controlled by a combination of relays and MQTT messages. This firmware is built using the [homie-esp8266](https://github.com/marvinroger/homie-esp8266) framework.
 
 # Features
 
@@ -8,7 +8,7 @@ SwitchKit provides a simple firmware for ESP8266 devices to control up to four s
 - [x] Control smart bulbs via physical switches
 - [x] Avoid disgraceful degradation if wifi or mqtt connectivity fails
 - [x] OTA updates (via homie-esp8266)
-- [x] Handles up to four bulbs of either type
+- [x] Handles up to three bulbs of either type
 - [x] Remotely configurable via MQTT
 
 ## Dumb Lights vs Smart Lights

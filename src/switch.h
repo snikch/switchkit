@@ -9,7 +9,7 @@ namespace SwitchKit {
 class Switch
 {
 public:
-  Switch(const char* name, bool isSmart, int outputPin, int inputPin);
+  Switch(const char* name, bool isSmart, int inputPin, int outputPin);
   void onHomieEvent(HomieEvent event);
   void setDebug(bool debug);
   void loop();

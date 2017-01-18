@@ -2,14 +2,13 @@
 #include <functional>
 using namespace std::placeholders;
 
-Switch::Switch(const char* name, bool isSmart, int outputPin, int inputPin)
+Switch::Switch(const char* name, bool isSmart, int inputPin, int outputPin)
 : _name(name),
   _inputPin(inputPin),
   _outputPin(outputPin),
   _isSmart(isSmart)
 {
-  Pressing i = Pressing(inputPin, HIGH, 400);
-  _input = &i;
+  _input = new Pressing(inputPin, HIGH, 400);
   auto didPressButton = std::bind(&Switch::didToggleViaHW, this);
   auto didToggleManualOverride = std::bind(&Switch::didToggleManualOverride, this);
   // auto handleClickAndHold = std::bind(&Switch::handleClickAndHold, this);
@@ -39,7 +38,7 @@ void Switch::onHomieEvent(HomieEvent event) {
   switch(event.type) {
     case HomieEventType::MQTT_CONNECTED:
       if (_debug) {
-        Serial.println("Received connected event");
+        Homie.getLogger() << "Received connected event\n";
       }
       this->didComeOnline();
       _isOnline = true;
@@ -47,7 +46,7 @@ void Switch::onHomieEvent(HomieEvent event) {
     case HomieEventType::WIFI_DISCONNECTED:
     case HomieEventType::MQTT_DISCONNECTED:
       if (_debug) {
-        Serial.println("Received disconnected event");
+        Homie.getLogger() << "Received disconnected event\n";
       }
       this->didGoOffline();
       _isOnline = false;
@@ -64,7 +63,7 @@ void Switch::emitState() {
   if (_debug) {
     Homie.getLogger() << _name;
     Homie.getLogger() << " Emitting State: ";
-    Homie.getLogger() << (_currentState ? "true" : "false");
+    Homie.getLogger() << (_currentState ? "true\n" : "false\n");
   }
   _node->setProperty("on").send(_currentState ? "true" : "false");
 }
@@ -73,7 +72,7 @@ void Switch::setOutputToState(bool state) {
   if (_debug) {
     Homie.getLogger() << _name;
     Homie.getLogger() << " Setting Relay Output to ";
-    Homie.getLogger() << (_currentState ? "true" : "false");
+    Homie.getLogger() << (_currentState ? "true\n" : "false\n");
   }
   digitalWrite(_outputPin, state ? HIGH : LOW);
 }
@@ -107,7 +106,7 @@ void Switch::didGoOffline() {
 bool Switch::didToggleViaMQTT(HomieRange range, String value) {
   if (_debug) {
     Homie.getLogger() << _name;
-    Homie.getLogger() << " toggled via MQTT";
+    Homie.getLogger() << " toggled via MQTT\n";
   }
   bool newState = value == "true";
   if (_currentState == newState) {
@@ -124,7 +123,7 @@ bool Switch::didToggleViaMQTT(HomieRange range, String value) {
 void Switch::didToggleViaHW() {
   if (_debug) {
     Homie.getLogger() << _name;
-    Homie.getLogger() << " toggled via Hardware";
+    Homie.getLogger() << " toggled via Hardware\n";
   }
   _currentState = !_currentState;
   if (!this->isOfflineMode()) {
@@ -159,7 +158,7 @@ void Switch::didToggleViaHW() {
 void Switch::didToggleManualOverride() {
   if (_debug) {
     Homie.getLogger() << _name;
-    Homie.getLogger() << " toggled manual override";
+    Homie.getLogger() << " toggled manual override\n";
   }
   _isManualOverride = !_isManualOverride;
   // Are we going offline?
@@ -174,6 +173,6 @@ void Switch::didToggleManualOverride() {
 void Switch::handleClickAndHold(int duration) {
   if (_debug) {
     Homie.getLogger() << _name;
-    Homie.getLogger() << " click and held";
+    Homie.getLogger() << " click and held\n";
   }
 }

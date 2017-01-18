@@ -14,24 +14,22 @@ const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x
 /**
  * Pin defaults
  * Pin 0 on nodemcu is the flash button, and Homie defaults this to the reset pin.
- * D0 16
+ * D0 16 User Wake
  * D1 05
  * D2 04
- * D3 00
- * D4 02
- * D5 14
- * D6 12
- * D7 13
- * D8 15
+ * D3 00 Flash
+ * D4 02 TXD1 (NodeMCU LED)
+ * D5 14 HSCLK
+ * D6 12 HMISO
+ * D7 13 RXD2 HMOSI
+ * D8 15 TXD2
  */
-// #define DEFAULT_PIN_1_INPUT D0
-// #define DEFAULT_PIN_1_OUTPUT D1
-// #define DEFAULT_PIN_2_INPUT D2
-// #define DEFAULT_PIN_2_OUTPUT D3
-// #define DEFAULT_PIN_3_INPUT D4
-// #define DEFAULT_PIN_3_OUTPUT D5
-#define DEFAULT_PIN_4_INPUT 4
-#define DEFAULT_PIN_4_OUTPUT 5
+#define DEFAULT_PIN_1_INPUT D1
+#define DEFAULT_PIN_1_OUTPUT D0
+#define DEFAULT_PIN_2_INPUT D2
+#define DEFAULT_PIN_2_OUTPUT D5
+#define DEFAULT_PIN_3_INPUT D4
+#define DEFAULT_PIN_3_OUTPUT D6
 
 // Basic Configuration.
 const int PIN_LED = 13;
@@ -42,20 +40,26 @@ const bool ENABLE_TEMP = true;
 Switch* sw1;
 Switch* sw2;
 Switch* sw3;
-Switch* sw4;
 
 void onHomieEvent(HomieEvent event) {
-  if (sw4 != nullptr) {
-    sw4->onHomieEvent(event);
-  }
+  // if (DEBUG) {
+  //   Homie.getLogger() << "Received Homie Event\n";
+  // }
+  sw1->onHomieEvent(event);
+  sw2->onHomieEvent(event);
+  sw3->onHomieEvent(event);
 }
 
 
 void setup() {
   Serial.begin(115200);
 
-  sw4 = new Switch("test", true, DEFAULT_PIN_4_INPUT, DEFAULT_PIN_4_OUTPUT);
-  sw4->setDebug(DEBUG);
+  sw1 = new Switch("sw1", true, DEFAULT_PIN_1_INPUT, DEFAULT_PIN_1_OUTPUT);
+  sw1->setDebug(DEBUG);
+  sw2 = new Switch("sw2", true, DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
+  sw2->setDebug(DEBUG);
+  sw3 = new Switch("sw3", true, DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
+  sw3->setDebug(DEBUG);
 
   // Reset the watchdog timer to 8 seconds.
   ESP.wdtDisable();
@@ -68,8 +72,9 @@ void setup() {
   Homie.disableLedFeedback();
   // Homie.setLoopFunction(loopHandler)
   // Homie.setSetupFunction(setupHandler);
+  // Homie.disableResetTrigger();
   Homie.setResetTrigger(PIN_BUTTON, LOW, 2000);
-  // Homie.onEvent(onHomieEvent);
+  Homie.onEvent(onHomieEvent);
   Homie.setup();
   Serial.println("Setup complete");
 }
@@ -77,34 +82,12 @@ void setup() {
 int loopCounter = 0;
 
 void loop() {
-  // loopCounter++;
-  // bool isPrintLoop = false;
-  // if (loopCounter > 10000) {
-  //   isPrintLoop = true;
-  //   Serial.println("Loop");
-  //   loopCounter = 0;
-  // }
-  // Homie.loop();
-  // if (isPrintLoop) {
-  //   Serial.println("1");
-  // }
+  Homie.loop();
+  sw1->loop();
+  sw2->loop();
+  sw3->loop();
   // // if (sw1 != nullptr) {
   // //   sw1->loop();
   // // }
-  // // if (sw2 != nullptr) {
-  // //   sw2->loop();
-  // // }
-  // // if (sw3 != nullptr) {
-  // //   sw3->loop();
-  // // }
-  // if (sw4 != nullptr) {
-  //   sw4->loop();
-  //   if (isPrintLoop) {
-  //     Serial.println("2");
-  //   }
-  // }
   // ESP.wdtFeed();
-  // if (isPrintLoop) {
-  //   Serial.println("3");
-  // }
 }
