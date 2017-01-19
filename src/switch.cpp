@@ -23,6 +23,13 @@ Switch::Switch(const char* name, bool isSmart, int inputPin, int outputPin)
   _node = new HomieNode(name, "switch");
   auto didToggleViaMQTT = std::bind(&Switch::didToggleViaMQTT, this, _1, _2);
   _node->advertise("on").settable(didToggleViaMQTT);
+
+  // Now we need to set some initial state.
+  if (_isSmart) {
+    this->setOutputToState(true);
+  } else {
+    this->setOutputToState(_currentState);
+  }
 }
 
 void Switch::loop() {
@@ -110,6 +117,9 @@ bool Switch::didToggleViaMQTT(HomieRange range, String value) {
   }
   bool newState = value == "true";
   if (_currentState == newState) {
+    // While this shouldn't be necessary, if the state somehow gets out of sync
+    // with the mqtt state, this is required to bring it back in line.
+    this->emitState();
     return true;
   }
 
@@ -117,6 +127,7 @@ bool Switch::didToggleViaMQTT(HomieRange range, String value) {
   if (!_isSmart) {
     this->setOutputToState(_currentState);
   }
+  this->emitState();
   return true;
 }
 
