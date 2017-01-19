@@ -56,9 +56,9 @@ void setup() {
 
   sw1 = new Switch("sw1", true, DEFAULT_PIN_1_INPUT, DEFAULT_PIN_1_OUTPUT);
   sw1->setDebug(DEBUG);
-  sw2 = new Switch("sw2", true, DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
+  sw2 = new Switch("sw2", false, DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
   sw2->setDebug(DEBUG);
-  sw3 = new Switch("sw3", true, DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
+  sw3 = new Switch("sw3", false, DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
   sw3->setDebug(DEBUG);
 
   // Reset the watchdog timer to 8 seconds.
