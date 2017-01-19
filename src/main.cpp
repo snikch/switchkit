@@ -1,10 +1,15 @@
+#include "config.h"
 #include <Homie.h>
 #include "switch.h"
 
-#define FW_NAME "sensorkit"
+#define FW_NAME "switchkit"
 #define FW_VERSION "1.0.0"
-#define BRAND_NAME "Fairholme"
-#define DEBUG true
+#ifndef BRAND_NAME
+  #define BRAND_NAME "switchkit"
+#endif
+#ifndef DEBUG
+  #define DEBUG true
+#endif
 
 /* Magic sequence for Autodetectable Binary Upload */
 const char *__FLAGGED_FW_NAME = "\xbf\x84\xe4\x13\x54" FW_NAME "\x93\x44\x6b\xa7\x75";

@@ -34,3 +34,5 @@ configs/
 *.exe
 *.out
 *.app
+
+src/config.h
