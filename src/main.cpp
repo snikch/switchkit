@@ -20,21 +20,21 @@ const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x
  * Pin defaults
  * Pin 0 on nodemcu is the flash button, and Homie defaults this to the reset pin.
  * D0 16 User Wake
- * D1 05
- * D2 04
+ * D1 05 (Electrodragon GPIO)
+ * D2 04 (Electrodragon GPIO)
  * D3 00 Flash
  * D4 02 TXD1 (NodeMCU LED)
  * D5 14 HSCLK
- * D6 12 HMISO
- * D7 13 RXD2 HMOSI
- * D8 15 TXD2
+ * D6 12 HMISO (Electrodragon Relay 2, Sonoff Relay 1)
+ * D7 13 RXD2 HMOSI (Electrodragon Relay 1, Sonoff LED)
+ * D8 15 TXD2 (Electrodragon GPIO)
  */
 #define DEFAULT_PIN_1_INPUT D1
-#define DEFAULT_PIN_1_OUTPUT D0
+#define DEFAULT_PIN_1_OUTPUT D6
 #define DEFAULT_PIN_2_INPUT D2
-#define DEFAULT_PIN_2_OUTPUT D5
+#define DEFAULT_PIN_2_OUTPUT D7
 #define DEFAULT_PIN_3_INPUT D4
-#define DEFAULT_PIN_3_OUTPUT D6
+#define DEFAULT_PIN_3_OUTPUT D0
 
 // Basic Configuration.
 const int PIN_LED = 13;
