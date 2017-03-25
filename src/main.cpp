@@ -23,7 +23,7 @@ const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x
  * D1 05 (Electrodragon GPIO)
  * D2 04 (Electrodragon GPIO)
  * D3 00 Flash
- * D4 02 TXD1 (NodeMCU LED)
+ * D4 02 TXD1 (NodeMCU LED, Electrodragon Btn 1)
  * D5 14 HSCLK
  * D6 12 HMISO (Electrodragon Relay 2, Sonoff Relay 1)
  * D7 13 RXD2 HMOSI (Electrodragon Relay 1, Sonoff LED)
@@ -63,8 +63,8 @@ void setup() {
   sw1->setDebug(DEBUG);
   sw2 = new Switch("sw2", false, DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
   sw2->setDebug(DEBUG);
-  sw3 = new Switch("sw3", false, DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
-  sw3->setDebug(DEBUG);
+  // sw3 = new Switch("sw3", false, DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
+  // sw3->setDebug(DEBUG);
 
   // Reset the watchdog timer to 8 seconds.
   ESP.wdtDisable();
@@ -88,11 +88,14 @@ int loopCounter = 0;
 
 void loop() {
   Homie.loop();
-  sw1->loop();
-  sw2->loop();
-  sw3->loop();
-  // // if (sw1 != nullptr) {
-  // //   sw1->loop();
-  // // }
-  // ESP.wdtFeed();
+  if (sw1 != nullptr) {
+    sw1->loop();
+  }
+  if (sw2 != nullptr) {
+    sw2->loop();
+  }
+  if (sw3 != nullptr) {
+    sw3->loop();
+  }
+  ESP.wdtFeed();
 }
