@@ -2,7 +2,17 @@
 #include <Homie.h>
 #include "switch.h"
 
-#define FW_NAME "switchkit"
+#ifndef FW_NAME
+  #ifdef SONOFF
+    #define FW_NAME "switchkit-sonoff"
+  #endif
+  #ifdef ELECTRODRAGON
+    #define FW_NAME "switchkit-electrodragon"
+  #endif
+  #ifndef FW_NAME
+    #define FW_NAME "switchkit"
+  #endif
+#endif
 #define FW_VERSION "1.0.0"
 #ifndef BRAND_NAME
   #define BRAND_NAME "switchkit"
@@ -24,17 +34,29 @@ const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x
  * D2 04 (Electrodragon GPIO)
  * D3 00 Flash
  * D4 02 TXD1 (NodeMCU LED, Electrodragon Btn 1)
- * D5 14 HSCLK
+ * D5 14 HSCLK (Sonoff Jumper Pin 5)
  * D6 12 HMISO (Electrodragon Relay 2, Sonoff Relay 1)
  * D7 13 RXD2 HMOSI (Electrodragon Relay 1, Sonoff LED)
  * D8 15 TXD2 (Electrodragon GPIO)
  */
+#ifdef SONOFF
+#define DEFAULT_PIN_1_INPUT D5
+#define DEFAULT_PIN_1_OUTPUT D6
+#endif
+#ifdef ELECTRODRAGON
+#define DEFAULT_PIN_1_INPUT D1
+#define DEFAULT_PIN_1_OUTPUT D6
+#define DEFAULT_PIN_2_INPUT D2
+#define DEFAULT_PIN_2_OUTPUT D7
+#endif
+#ifndef DEFAULT_PIN_1_INPUT
 #define DEFAULT_PIN_1_INPUT D1
 #define DEFAULT_PIN_1_OUTPUT D6
 #define DEFAULT_PIN_2_INPUT D2
 #define DEFAULT_PIN_2_OUTPUT D7
 #define DEFAULT_PIN_3_INPUT D4
 #define DEFAULT_PIN_3_OUTPUT D0
+#endif
 
 // Basic Configuration.
 const int PIN_LED = 13;
@@ -55,16 +77,34 @@ void onHomieEvent(HomieEvent event) {
   sw3->onHomieEvent(event);
 }
 
+void describePins() {
+  Serial.println("Pin Config (Input, Output)");
+  #ifdef DEFAULT_PIN_1_INPUT
+    Serial.printf("Switch 1 %d %d", DEFAULT_PIN_1_INPUT, DEFAULT_PIN_1_OUTPUT);
+  #endif
+  #ifdef DEFAULT_PIN_2_INPUT
+    Serial.printf("Switch 2 %d %d", DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
+  #endif
+  #ifdef DEFAULT_PIN_3_INPUT
+    Serial.printf("Switch 3 %d %d", DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
+  #endif
+}
 
 void setup() {
   Serial.begin(115200);
-
+  describePins();
+  #ifdef DEFAULT_PIN_1_INPUT
   sw1 = new Switch("sw1", true, DEFAULT_PIN_1_INPUT, DEFAULT_PIN_1_OUTPUT);
   sw1->setDebug(DEBUG);
+  #endif
+  #ifdef DEFAULT_PIN_2_INPUT
   sw2 = new Switch("sw2", false, DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
   sw2->setDebug(DEBUG);
-  // sw3 = new Switch("sw3", false, DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
-  // sw3->setDebug(DEBUG);
+  #endif
+  #ifdef DEFAULT_PIN_3_INPUT
+  sw3 = new Switch("sw3", false, DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
+  sw3->setDebug(DEBUG);
+  #endif
 
   // Reset the watchdog timer to 8 seconds.
   ESP.wdtDisable();
