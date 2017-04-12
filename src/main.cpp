@@ -40,8 +40,8 @@ const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x
  * D8 15 TXD2 (Electrodragon GPIO)
  */
 #ifdef SONOFF
-#define DEFAULT_PIN_1_INPUT D5
-#define DEFAULT_PIN_1_OUTPUT D6
+#define DEFAULT_PIN_1_INPUT 14//D5
+#define DEFAULT_PIN_1_OUTPUT 12//D6
 #endif
 #ifdef ELECTRODRAGON
 #define DEFAULT_PIN_1_INPUT D1
@@ -64,29 +64,56 @@ const int PIN_BUTTON = 0;
 const bool ENABLE_RELAY = true;
 const bool ENABLE_TEMP = true;
 
+// Set up three different switch pointers, which may or may not be populated
+// with switch objects depending on the build type.
 Switch* sw1;
 Switch* sw2;
 Switch* sw3;
 
+// onHomieEvent handles fanning out the homie events to the switches.
 void onHomieEvent(HomieEvent event) {
-  // if (DEBUG) {
-  //   Homie.getLogger() << "Received Homie Event\n";
-  // }
-  sw1->onHomieEvent(event);
-  sw2->onHomieEvent(event);
-  sw3->onHomieEvent(event);
+  if (sw1 != nullptr) {
+    sw1->onHomieEvent(event);
+  }
+  if (sw2 != nullptr) {
+    sw2->onHomieEvent(event);
+  }
+  if (sw3 != nullptr) {
+    sw3->onHomieEvent(event);
+  }
 }
 
+// Add three settings for configuring a switch as smart.
+HomieSetting<bool> sw1SmartSetting("sw1_smart", "Is Switch 1 Smart?");
+HomieSetting<bool> sw2SmartSetting("sw2_smart", "Is Switch 2 Smart?");
+HomieSetting<bool> sw3SmartSetting("sw3_smart", "Is Switch 3 Smart?");
+
+// setupHandler is called by Homie once initialised, and is where we set the
+// smart configuration. This has to happen after Homie is initialised so that
+// the settings have been populated.
+void setupHandler() {
+  if (sw1 != nullptr) {
+    sw1->setSmart(sw1SmartSetting.get());
+  }
+  if (sw2 != nullptr) {
+    sw2->setSmart(sw2SmartSetting.get());
+  }
+  if (sw3 != nullptr) {
+    sw3->setSmart(sw3SmartSetting.get());
+  }
+}
+
+// describePins outputs the pins in use.
 void describePins() {
   Serial.println("Pin Config (Input, Output)");
   #ifdef DEFAULT_PIN_1_INPUT
-    Serial.printf("Switch 1 %d %d", DEFAULT_PIN_1_INPUT, DEFAULT_PIN_1_OUTPUT);
+    Serial.printf("Switch 1 %d %d\n", DEFAULT_PIN_1_INPUT, DEFAULT_PIN_1_OUTPUT);
   #endif
   #ifdef DEFAULT_PIN_2_INPUT
-    Serial.printf("Switch 2 %d %d", DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
+    Serial.printf("Switch 2 %d %d\n", DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
   #endif
   #ifdef DEFAULT_PIN_3_INPUT
-    Serial.printf("Switch 3 %d %d", DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
+    Serial.printf("Switch 3 %d %d\n", DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
   #endif
 }
 
@@ -94,17 +121,21 @@ void setup() {
   Serial.begin(115200);
   describePins();
   #ifdef DEFAULT_PIN_1_INPUT
-  sw1 = new Switch("sw1", true, DEFAULT_PIN_1_INPUT, DEFAULT_PIN_1_OUTPUT);
+  sw1 = new Switch("sw1", DEFAULT_PIN_1_INPUT, DEFAULT_PIN_1_OUTPUT);
   sw1->setDebug(DEBUG);
   #endif
   #ifdef DEFAULT_PIN_2_INPUT
-  sw2 = new Switch("sw2", false, DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
+  sw2 = new Switch("sw2", DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
   sw2->setDebug(DEBUG);
   #endif
   #ifdef DEFAULT_PIN_3_INPUT
-  sw3 = new Switch("sw3", false, DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
+  sw3 = new Switch("sw3", DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
   sw3->setDebug(DEBUG);
   #endif
+
+  sw1SmartSetting.setDefaultValue(false);
+  sw2SmartSetting.setDefaultValue(false);
+  sw3SmartSetting.setDefaultValue(false);
 
   // Reset the watchdog timer to 8 seconds.
   ESP.wdtDisable();
@@ -113,18 +144,14 @@ void setup() {
   Homie_setFirmware(FW_NAME, FW_VERSION);
   Homie_setBrand(BRAND_NAME);
 
-  // Homie.setLedPin(PIN_LED, LOW);
+  Homie.setLedPin(PIN_LED, LOW);
   Homie.disableLedFeedback();
-  // Homie.setLoopFunction(loopHandler)
-  // Homie.setSetupFunction(setupHandler);
-  // Homie.disableResetTrigger();
-  Homie.setResetTrigger(PIN_BUTTON, LOW, 2000);
+  Homie.setSetupFunction(setupHandler);
+  Homie.setResetTrigger(PIN_BUTTON, HIGH, 2000);
   Homie.onEvent(onHomieEvent);
   Homie.setup();
   Serial.println("Setup complete");
 }
-
-int loopCounter = 0;
 
 void loop() {
   Homie.loop();

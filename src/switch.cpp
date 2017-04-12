@@ -2,11 +2,10 @@
 #include <functional>
 using namespace std::placeholders;
 
-Switch::Switch(const char* name, bool isSmart, int inputPin, int outputPin)
+Switch::Switch(const char* name, int inputPin, int outputPin)
 : _name(name),
   _inputPin(inputPin),
-  _outputPin(outputPin),
-  _isSmart(isSmart)
+  _outputPin(outputPin)
 {
   _input = new Pressing(inputPin, HIGH, 400);
   auto didPressButton = std::bind(&Switch::didToggleViaHW, this);
@@ -38,6 +37,10 @@ void Switch::loop() {
 
 void Switch::setDebug(bool debug) {
   _debug = debug;
+}
+
+void Switch::setSmart(bool isSmart) {
+  _isSmart = isSmart;
 }
 
 // Handle any connect or disconnect events and set the current status.
