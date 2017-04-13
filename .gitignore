@@ -2,7 +2,9 @@
 .clang_complete
 .gcc-flags.json
 .piolibdeps
+
 # Ignore Configuration Files
+src/config.h
 configs/
 # Compiled Object files
 *.slo
@@ -28,4 +30,3 @@ configs/
 *.exe
 *.out
 *.app
-src/config.h

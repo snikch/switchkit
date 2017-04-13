@@ -42,12 +42,14 @@ const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x
 #ifdef SONOFF
 #define DEFAULT_PIN_1_INPUT 14//D5
 #define DEFAULT_PIN_1_OUTPUT 12//D6
+#define PIN_BUTTON_STATE LOW
 #endif
 #ifdef ELECTRODRAGON
 #define DEFAULT_PIN_1_INPUT D1
 #define DEFAULT_PIN_1_OUTPUT D6
 #define DEFAULT_PIN_2_INPUT D2
 #define DEFAULT_PIN_2_OUTPUT D7
+#define PIN_BUTTON_STATE LOW
 #endif
 #ifndef DEFAULT_PIN_1_INPUT
 #define DEFAULT_PIN_1_INPUT D1
@@ -56,6 +58,7 @@ const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x
 #define DEFAULT_PIN_2_OUTPUT D7
 #define DEFAULT_PIN_3_INPUT D4
 #define DEFAULT_PIN_3_OUTPUT D0
+#define PIN_BUTTON_STATE LOW
 #endif
 
 // Basic Configuration.
@@ -147,7 +150,7 @@ void setup() {
   Homie.setLedPin(PIN_LED, LOW);
   Homie.disableLedFeedback();
   Homie.setSetupFunction(setupHandler);
-  Homie.setResetTrigger(PIN_BUTTON, HIGH, 2000);
+  Homie.setResetTrigger(PIN_BUTTON, PIN_BUTTON_STATE, 2000);
   Homie.onEvent(onHomieEvent);
   Homie.setup();
   Serial.println("Setup complete");
