@@ -1,6 +1,8 @@
 # SwitchKit 🎛
 
-SwitchKit provides a simple firmware for ESP8266 devices to control up to three smart or dumb bulbs, via physical switches. It is designed to be placed in wall boxes and wire in to existing switches. Lights are then controlled by a combination of relays and MQTT messages. This firmware is built using the [homie-esp8266](https://github.com/marvinroger/homie-esp8266) framework.
+Home Automation for your existing switches, with a little bit of smarts.
+
+SwitchKit provides a simple firmware for ESP8266 devices to control up to three smart or dumb bulbs, via physical switches. It works perfectly with Sonoff, Electrodragon and any ESP8266 based device. It is designed to be placed in wall boxes and wire in to existing switches. Lights are then controlled by a combination of relays and MQTT messages, although all functionality is preserved if your wifi etc. goes down. This firmware is built using the [homie-esp8266](https://github.com/marvinroger/homie-esp8266) framework.
 
 # Features
 
