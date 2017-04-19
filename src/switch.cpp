@@ -147,6 +147,8 @@ void Switch::didToggleViaHW() {
       this->setOutputToState(_currentState);
     }
     return;
+  } else if (_isSmart) {
+    _hasChangedSinceOffline = true;
   }
 
   if (!_isSmart) {
