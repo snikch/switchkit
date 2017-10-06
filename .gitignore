@@ -30,3 +30,5 @@ configs/
 *.exe
 *.out
 *.app
+.vscode/c_cpp_properties.json
+.vscode/

@@ -12,10 +12,10 @@ public:
   // ----- Constructor -----
   Pressing(int pin, int active, int delay);
 
-  Pressing& setToggleMode(bool on);
-  Pressing& onClick(int count, clickCallback fn);
-  Pressing& onToggle(clickCallback fn);
-  Pressing& onHold(int count, holdCallback fn);
+  Pressing &setToggleMode(bool on);
+  Pressing &onClick(int count, clickCallback fn);
+  Pressing &onToggle(clickCallback fn);
+  Pressing &onHold(int count, holdCallback fn);
   clickCallback getClickCallback(int count);
   void loop(void);
 
@@ -41,7 +41,7 @@ private:
   bool _isLongPressed;
 
   // int _clickCallbacksSize = 1;
-  clickCallback  _clickCallbacks[10];
-  holdCallback  _holdCallbacks[10];
+  clickCallback _clickCallbacks[10];
+  holdCallback _holdCallbacks[10];
   clickCallback _toggleCallback;
 };
