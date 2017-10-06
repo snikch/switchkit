@@ -30,3 +30,4 @@ configs/
 *.exe
 *.out
 *.app
+.vscode/
