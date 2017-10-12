@@ -1,15 +1,24 @@
 #include <Homie.h>
 #include "pressing.h"
+#include <functional>
 
-namespace SwitchKit {
-  const bool Smart = true;
-  const bool Simple = false;
+// typedef std::function<void(bool active)> stateCallback;
+typedef void (*stateCallback)(bool active);
+
+namespace SwitchKit
+{
+const bool Smart = true;
+const bool Simple = false;
 }
 
 class Switch
 {
 public:
-  Switch(const char* name, int inputPin, int outputPin);
+  Switch(const char *name, int inputPin, int outputPin);
+  Switch &onStateChange(stateCallback fn)
+  {
+    _stateCallback = fn;
+  };
   void onHomieEvent(HomieEvent event);
   void setDebug(bool debug);
   void setSmart(bool isSmart);
@@ -22,8 +31,11 @@ private:
   String _name;
 
   // Configuration objects.
-  Pressing* _input;
-  HomieNode* _node;
+  Pressing *_input;
+  HomieNode *_node;
+
+  // Callbacks functions
+  stateCallback _stateCallback;
 
   // State booleans.
   bool _isSmart = false;

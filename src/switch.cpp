@@ -2,10 +2,10 @@
 #include <functional>
 using namespace std::placeholders;
 
-Switch::Switch(const char* name, int inputPin, int outputPin)
-: _name(name),
-  _inputPin(inputPin),
-  _outputPin(outputPin)
+Switch::Switch(const char *name, int inputPin, int outputPin)
+    : _name(name),
+      _inputPin(inputPin),
+      _outputPin(outputPin)
 {
   _input = new Pressing(inputPin, HIGH, 400);
   auto didPressButton = std::bind(&Switch::didToggleViaHW, this);
@@ -25,52 +25,65 @@ Switch::Switch(const char* name, int inputPin, int outputPin)
   this->setOutputToState(false);
 }
 
-void Switch::loop() {
+void Switch::loop()
+{
   _input->loop();
 }
 
-void Switch::setDebug(bool debug) {
+void Switch::setDebug(bool debug)
+{
   _debug = debug;
 }
 
-void Switch::setSmart(bool isSmart) {
+void Switch::setSmart(bool isSmart)
+{
   _isSmart = isSmart;
   // Now we need to set some initial state.
-  if (_isSmart) {
+  if (_isSmart)
+  {
     this->setOutputToState(true);
-  } else {
+  }
+  else
+  {
     this->setOutputToState(_currentState);
   }
 }
 
 // Handle any connect or disconnect events and set the current status.
-void Switch::onHomieEvent(HomieEvent event) {
-  switch(event.type) {
-    case HomieEventType::MQTT_CONNECTED:
-      if (_debug) {
-        Homie.getLogger() << "Received connected event\n";
-      }
-      this->didComeOnline();
-      _isOnline = true;
-      break;
-    case HomieEventType::WIFI_DISCONNECTED:
-    case HomieEventType::MQTT_DISCONNECTED:
-      if (_debug) {
-        Homie.getLogger() << "Received disconnected event\n";
-      }
-      this->didGoOffline();
-      _isOnline = false;
-      break;
+void Switch::onHomieEvent(HomieEvent event)
+{
+  switch (event.type)
+  {
+  case HomieEventType::MQTT_CONNECTED:
+    if (_debug)
+    {
+      Homie.getLogger() << "Received connected event\n";
+    }
+    this->didComeOnline();
+    _isOnline = true;
+    break;
+  case HomieEventType::WIFI_DISCONNECTED:
+  case HomieEventType::MQTT_DISCONNECTED:
+    if (_debug)
+    {
+      Homie.getLogger() << "Received disconnected event\n";
+    }
+    this->didGoOffline();
+    _isOnline = false;
+    break;
   }
 }
 
 // offlineMode returns true if we aren't online, or if we're in manual override.
-bool Switch::isOfflineMode() {
+bool Switch::isOfflineMode()
+{
   return !_isOnline || _isManualOverride;
 }
 
-void Switch::emitState() {
-  if (_debug) {
+void Switch::emitState()
+{
+  if (_debug)
+  {
     Homie.getLogger() << _name;
     Homie.getLogger() << " Emitting State: ";
     Homie.getLogger() << (_currentState ? "true\n" : "false\n");
@@ -78,26 +91,40 @@ void Switch::emitState() {
   _node->setProperty("on").send(_currentState ? "true" : "false");
 }
 
-void Switch::setOutputToState(bool state) {
-  if (_debug) {
+void Switch::setOutputToState(bool state)
+{
+  if (_debug)
+  {
     Homie.getLogger() << _name;
     Homie.getLogger() << " Setting Relay Output to ";
     Homie.getLogger() << (_currentState ? "true\n" : "false\n");
   }
-  digitalWrite(_outputPin, state ? HIGH : LOW);
+  // If we have a state callback function all we need to do is call that.
+  if (_stateCallback == nullptr)
+  {
+    digitalWrite(_outputPin, state ? HIGH : LOW);
+  }
+  else
+  {
+    _stateCallback(state);
+  }
 }
 
-void Switch::didComeOnline() {
-  if (!_isSmart) {
+void Switch::didComeOnline()
+{
+  if (!_isSmart)
+  {
     this->emitState();
     return;
   }
 
-  if (!_hasChangedSinceOffline) {
+  if (!_hasChangedSinceOffline)
+  {
     return;
   }
 
-  if (_currentState == false) {
+  if (_currentState == false)
+  {
     this->setOutputToState(true);
     // Delay 1 second
     delayMicroseconds(1000000);
@@ -106,20 +133,25 @@ void Switch::didComeOnline() {
   this->emitState();
 }
 
-void Switch::didGoOffline() {
-  if (this->isOfflineMode()) {
+void Switch::didGoOffline()
+{
+  if (this->isOfflineMode())
+  {
     return;
   }
   _hasChangedSinceOffline = false;
 }
 
-bool Switch::didToggleViaMQTT(HomieRange range, String value) {
-  if (_debug) {
+bool Switch::didToggleViaMQTT(HomieRange range, String value)
+{
+  if (_debug)
+  {
     Homie.getLogger() << _name;
     Homie.getLogger() << " toggled via MQTT\n";
   }
   bool newState = value == "true";
-  if (_currentState == newState) {
+  if (_currentState == newState)
+  {
     // While this shouldn't be necessary, if the state somehow gets out of sync
     // with the mqtt state, this is required to bring it back in line.
     this->emitState();
@@ -127,41 +159,51 @@ bool Switch::didToggleViaMQTT(HomieRange range, String value) {
   }
 
   _currentState = !_currentState;
-  if (!_isSmart) {
+  if (!_isSmart)
+  {
     this->setOutputToState(_currentState);
   }
   this->emitState();
   return true;
 }
 
-void Switch::didToggleViaHW() {
-  if (_debug) {
+void Switch::didToggleViaHW()
+{
+  if (_debug)
+  {
     Homie.getLogger() << _name;
     Homie.getLogger() << " toggled via Hardware\n";
   }
   _currentState = !_currentState;
-  if (!this->isOfflineMode()) {
+  if (!this->isOfflineMode())
+  {
     this->emitState();
 
-    if (!_isSmart) {
+    if (!_isSmart)
+    {
       this->setOutputToState(_currentState);
     }
     return;
-  } else if (_isSmart) {
+  }
+  else if (_isSmart)
+  {
     _hasChangedSinceOffline = true;
   }
 
-  if (!_isSmart) {
+  if (!_isSmart)
+  {
     this->setOutputToState(_currentState);
     return;
   }
 
-  if (_currentState == false) {
+  if (_currentState == false)
+  {
     this->setOutputToState(false);
     return;
   }
 
-  if (_relayState == true) {
+  if (_relayState == true)
+  {
     this->setOutputToState(false);
     // Delay 1 second
     delayMicroseconds(1000000);
@@ -171,23 +213,30 @@ void Switch::didToggleViaHW() {
 }
 
 // TODO: Add this to flow chart
-void Switch::didToggleManualOverride() {
-  if (_debug) {
+void Switch::didToggleManualOverride()
+{
+  if (_debug)
+  {
     Homie.getLogger() << _name;
     Homie.getLogger() << " toggled manual override\n";
   }
   _isManualOverride = !_isManualOverride;
   // Are we going offline?
-  if (_isManualOverride && _isOnline) {
+  if (_isManualOverride && _isOnline)
+  {
     this->didGoOffline();
     // Are we coming online?
-  } else if (!_isManualOverride && _isOnline) {
+  }
+  else if (!_isManualOverride && _isOnline)
+  {
     this->didComeOnline();
   }
 }
 
-void Switch::handleClickAndHold(int duration) {
-  if (_debug) {
+void Switch::handleClickAndHold(int duration)
+{
+  if (_debug)
+  {
     Homie.getLogger() << _name;
     Homie.getLogger() << " click and held\n";
   }
