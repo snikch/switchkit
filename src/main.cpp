@@ -10,8 +10,8 @@
 #ifdef SONOFF
 #define FW_NAME "switchkit-sonoff"
 #endif
-#ifdef SONOFF
-#define FW_NAME "switchkit-sonoff"
+#ifdef SONOFF_DUAL
+#define FW_NAME "switchkit-sonoff-dual"
 #endif
 #ifdef ELECTRODRAGON
 #define FW_NAME "switchkit-electrodragon"
@@ -20,7 +20,7 @@
 #define FW_NAME "switchkit"
 #endif
 #endif
-#define FW_VERSION "1.0.1"
+#define FW_VERSION "1.0.5"
 #ifndef BRAND_NAME
 #define BRAND_NAME "switchkit"
 #endif
@@ -49,6 +49,13 @@ const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x
 #ifdef SONOFF
 #define DEFAULT_PIN_1_INPUT 14  //D5
 #define DEFAULT_PIN_1_OUTPUT 12 //D6
+#define PIN_BUTTON_STATE LOW
+#endif
+#ifdef SONOFF_DUAL
+#define DEFAULT_PIN_1_INPUT 4
+#define DEFAULT_PIN_1_OUTPUT 12
+#define DEFAULT_PIN_2_INPUT 14   //D2
+#define DEFAULT_PIN_2_OUTPUT 13 //D7
 #define PIN_BUTTON_STATE LOW
 #endif
 #ifdef ELECTRODRAGON
@@ -132,17 +139,18 @@ void describePins()
   Serial.printf("Switch 2 %d %d\n", DEFAULT_PIN_2_INPUT, DEFAULT_PIN_2_OUTPUT);
 #endif
 #ifdef DEFAULT_PIN_3_INPUT
-  Serial.printf("Switch 3 %d %d\n", DEFAULT_PIN_3_INPUT, DEFAULT_PIN_3_OUTPUT);
+  Homie.getLogger() << "Switch 3 " << DEFAULT_PIN_3_INPUT << " " << DEFAULT_PIN_3_OUTPUT << endl;
 #endif
 }
 
 void setup()
 {
-  Serial.begin(115200);
-  describePins();
 // Sonoff dual always has two switches, with the dual state callbacks.
 #ifdef SONOFF_DUAL
-  SonoffDual.setup();
+  // Avoid logging due to serial chip on duals
+  Homie.disableLogging();
+  Serial.begin(19200);
+//  SonoffDual.setup();
   sw1 = new Switch("sw1", DEFAULT_PIN_1_INPUT, DEFAULT_PIN_1_OUTPUT);
   sw1->setDebug(DEBUG);
   sw1->onStateChange(dualDidChangeStateOne);
@@ -151,6 +159,7 @@ void setup()
   sw2->onStateChange(dualDidChangeStateTwo);
 #endif
 #ifndef SONOFF_DUAL
+  Serial.begin(115200);
 #ifdef DEFAULT_PIN_1_INPUT
   sw1 = new Switch("sw1", DEFAULT_PIN_1_INPUT, DEFAULT_PIN_1_OUTPUT);
   sw1->setDebug(DEBUG);
@@ -164,6 +173,7 @@ void setup()
   sw3->setDebug(DEBUG);
 #endif
 #endif
+describePins();
 
   sw1SmartSetting.setDefaultValue(false);
   sw2SmartSetting.setDefaultValue(false);

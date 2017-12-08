@@ -54,7 +54,7 @@ void Switch::onHomieEvent(HomieEvent event)
 {
   switch (event.type)
   {
-  case HomieEventType::MQTT_CONNECTED:
+  case HomieEventType::MQTT_READY:
     if (_debug)
     {
       Homie.getLogger() << "Received connected event\n";
