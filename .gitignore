@@ -29,5 +29,11 @@ configs/
 *.exe
 *.out
 *.app
+<<<<<<< HEAD
 .vscode/
 .vscode/c_cpp_properties.json
+=======
+.vscode/c_cpp_properties.json
+.vscode/
+releases/
+>>>>>>> sonoff-dual
