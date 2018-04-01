@@ -33,6 +33,13 @@ Pressing::Pressing(int pin, int activeLow, int delay)
   }
 }
 
+void Pressing::setDelay(int delay)
+{
+  _clickTicks = delay;
+  _pressTicks = delay;
+  _toggleTicks = delay;
+}
+
 Pressing &Pressing::setToggleMode(bool on)
 {
   _toggleMode = on;

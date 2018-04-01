@@ -17,6 +17,7 @@ public:
   Pressing &onToggle(clickCallback fn);
   Pressing &onHold(int count, holdCallback fn);
   clickCallback getClickCallback(int count);
+  void setDelay(int delay);
   void loop(void);
 
 private:

@@ -20,7 +20,7 @@
 #define FW_NAME "switchkit"
 #endif
 #endif
-#define FW_VERSION "1.0.5"
+#define FW_VERSION "1.1.0"
 #ifndef BRAND_NAME
 #define BRAND_NAME "switchkit"
 #endif
@@ -74,6 +74,9 @@ const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x
 #define DEFAULT_PIN_3_OUTPUT 16 //D0
 #define PIN_BUTTON_STATE LOW
 #endif
+#ifndef DEFAULT_DELAY
+#define DEFAULT_DELAY 300
+#endif
 
 // Basic Configuration.
 const int PIN_LED = 13;
@@ -108,6 +111,10 @@ void onHomieEvent(HomieEvent event)
 HomieSetting<bool> sw1SmartSetting("sw1_smart", "Is Switch 1 Smart?");
 HomieSetting<bool> sw2SmartSetting("sw2_smart", "Is Switch 2 Smart?");
 HomieSetting<bool> sw3SmartSetting("sw3_smart", "Is Switch 3 Smart?");
+// Add three settings for configuring a switch's delay.
+HomieSetting<long> sw1DelaySetting("sw1_delay", "Delay for switch 1");
+HomieSetting<long> sw2DelaySetting("sw2_delay", "Delay for switch 2");
+HomieSetting<long> sw3DelaySetting("sw3_delay", "Delay for switch 3");
 
 // setupHandler is called by Homie once initialised, and is where we set the
 // smart configuration. This has to happen after Homie is initialised so that
@@ -117,14 +124,17 @@ void setupHandler()
   if (sw1 != nullptr)
   {
     sw1->setSmart(sw1SmartSetting.get());
+    sw1->setDelay(sw1DelaySetting.get());
   }
   if (sw2 != nullptr)
   {
     sw2->setSmart(sw2SmartSetting.get());
+    sw2->setDelay(sw2DelaySetting.get());
   }
   if (sw3 != nullptr)
   {
     sw3->setSmart(sw3SmartSetting.get());
+    sw3->setDelay(sw3DelaySetting.get());
   }
 }
 
@@ -145,6 +155,9 @@ void describePins()
 
 void setup()
 {
+  sw1DelaySetting.setDefaultValue(DEFAULT_DELAY);
+  sw2DelaySetting.setDefaultValue(DEFAULT_DELAY);
+  sw3DelaySetting.setDefaultValue(DEFAULT_DELAY);
 // Sonoff dual always has two switches, with the dual state callbacks.
 #ifdef SONOFF_DUAL
   // Avoid logging due to serial chip on duals

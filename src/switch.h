@@ -22,6 +22,7 @@ public:
   void onHomieEvent(HomieEvent event);
   void setDebug(bool debug);
   void setSmart(bool isSmart);
+  void setDelay(int delay);
   void loop();
 
 private:

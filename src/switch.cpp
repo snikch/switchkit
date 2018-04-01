@@ -30,6 +30,11 @@ void Switch::loop()
   _input->loop();
 }
 
+void Switch::setDelay(int delay)
+{
+  _input->setDelay(delay);
+}
+
 void Switch::setDebug(bool debug)
 {
   _debug = debug;
